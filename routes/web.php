@@ -7,6 +7,7 @@ use App\Http\Controllers\SesiController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MessageController;
+use Illuminate\Support\Facades\Artisan;
 
 
 // Public Routes
@@ -61,3 +62,27 @@ Route::middleware(['auth', 'userAkses:admin'])->group(function () {
 // Detail Routes (Bisa diakses public/user) diletakkan di bagian paling bawah
 Route::get('/pariwisata/{id}', [PariwisataController::class, 'show'])->name('pariwisata.show');
 Route::get('/fasilitas/{id}', [FasilitasController::class, 'show'])->name('fasilitas.show');
+
+// Rute Bantuan untuk Shared Hosting (Menjalankan Migrasi Tanpa Terminal)
+Route::get('/setup-database-produksi', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true, '--seed' => true]);
+        return 'Database produksi berhasil disiapkan beserta data dummy!';
+    } catch (\Exception $e) {
+        return 'Gagal menyiapkan database: ' . $e->getMessage();
+    }
+});
+
+
+Route::get('/setup-db', function() {
+    try {
+        // Menjalankan migrasi dan seeder
+        Artisan::call('migrate:fresh', [
+            '--force' => true,
+            '--seed' => true
+        ]);
+        return 'Tabel database berhasil dibuat dan di-seed di InfinityFree!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
